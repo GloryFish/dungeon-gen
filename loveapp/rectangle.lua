@@ -7,12 +7,12 @@
 -- 
 
 require 'middleclass'
-require vector
+require 'vector'
 
 Rectangle = class('Rectangle')
 function Rectangle:initialize(position, size)
-  assert(isvector(position), 'position must be a vector')
-  assert(isvector(size), 'size must be a vector')
+  assert(vector.isvector(position), 'position must be a vector')
+  assert(vector.isvector(size), 'size must be a vector')
   
   self.position = position
   self.size = size
@@ -21,14 +21,27 @@ end
 function Rectangle:contains(point)
   return point.x >= self.position.x and
          point.y >= self.position.y and
-         point.x <= self.position.x + self.size.width and
-         point.y <= self.position.y + self.size.height
+         point.x <= self.position.x + self.size.x and
+         point.y <= self.position.y + self.size.y
      
 end
 
 function Rectangle:intersects(rect)
-  return not (rect.position.x > self.position.x + self.size.width or
-              rect.position.x + rect.size.width < self.position.x or
-              rect.position.y > self.position.y + self.size.height or
-              rect.position.y + rect.size.height < self.position.y)
+  return not (rect.position.x > self.position.x + self.size.x or
+              rect.position.x + rect.size.x < self.position.x or
+              rect.position.y > self.position.y + self.size.x or
+              rect.position.y + rect.size.y < self.position.y)
 end
+
+-- This is mainly for debugging
+function Rectangle:draw(offset)
+  if offset == nil then
+    offset = vector(0, 0)
+  end
+  
+  love.graphics.rectangle('line', self.position.x + offset.x, self.position.y + offset.y, self.size.x, self.size.y)
+end
+
+
+
+

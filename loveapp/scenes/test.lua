@@ -9,13 +9,14 @@
 require 'logger'
 require 'vector'
 require 'colors'
+require 'rectangle'
 
 scenes.test = Gamestate.new()
 
 local test = scenes.test
 
 function test.enter(self, pre)
-
+ self.rect = Rectangle(vector(20, 40), vector(150, 200))
 end
 
 function test.keypressed(self, key, unicode)
@@ -37,6 +38,8 @@ end
 function test.draw(self)
   colors.white:set()
   love.graphics.print('Test Scene', 20, 20)
+  
+  self.rect:draw()
 end
 
 function test.quit(self)
