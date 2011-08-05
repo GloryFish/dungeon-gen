@@ -45,6 +45,7 @@ colors = {
   brown = Color(135, 113, 58),
   clear = Color(0, 0, 0, 0),
   gray = Color(44, 44, 44),
+  grey = Color(44, 44, 44),
   lightgray = Color(120, 120, 120),
   transgray = Color(44, 44, 44, 44),
   -- These are the 4 greyscale colors
