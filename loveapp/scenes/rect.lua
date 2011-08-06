@@ -26,7 +26,7 @@ function rect.enter(self, pre)
   
   self.corridorWidth = 20
   
-  self.corridor = self:generateCorridor(self.rects[1], self.rects[2])
+  self.corridor = self:generateCorridor(self.rects[1], self.rects[2], self.corridorWidth, self.corridorWidth + 20)
 end
 
 function rect.keypressed(self, key, unicode)
@@ -39,7 +39,7 @@ function rect.keypressed(self, key, unicode)
   end
 end
 
-function rect:generateCorridor(firstRect, secondRect)
+function rect:generateCorridor(firstRect, secondRect, minWidth, maxWidth)
   if firstRect:intersects(secondRect) then
     return nil
   end
@@ -74,17 +74,27 @@ function rect:generateCorridor(firstRect, secondRect)
       return nil
     end
     
-    if math.abs(top - bottom) < self.corridorWidth then
+    local maxPossibleCorridorWidth = math.abs(top - bottom)
+    
+    if maxPossibleCorridorWidth < minWidth then
       return nil
     end
 
     -- At this point we can certainly fit a corridor between the two walls
 
+    -- Choose a random corridor size between min and max
+    
+    
+    local corridorWidth = minWidth
+    if maxPossibleCorridorWidth > minWidth then
+      corridorWidth = math.random(minWidth, maxPossibleCorridorWidth)
+    end
+    
     -- Select a random vertical position on the first rects wall between the highest possible and lowest possible positions
-    local posY = math.random(top, bottom - self.corridorWidth)
+    local posY = math.random(top, bottom - corridorWidth)
 
     return Rectangle(vector(firstRect.position.x + firstRect.size.x, posY), 
-                     vector(secondRect.position.x - (firstRect.position.x + firstRect.size.x), self.corridorWidth))
+                     vector(secondRect.position.x - (firstRect.position.x + firstRect.size.x), corridorWidth))
     
 
   end
@@ -101,7 +111,7 @@ end
 function rect.update(self, dt)
   if love.mouse.isDown('l') then
     self.rects[1].position = vector(love.mouse.getX(), love.mouse.getY())
-    self.corridor = self:generateCorridor(self.rects[1], self.rects[2])
+    self.corridor = self:generateCorridor(self.rects[1], self.rects[2], self.corridorWidth, self.corridorWidth + 20)
   end
 end
 
