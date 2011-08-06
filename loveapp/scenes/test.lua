@@ -77,10 +77,7 @@ function test.update(self, dt)
 end
 
 function test.draw(self)
-  colors.white:set()
-  love.graphics.print('Test Scene', 20, 20)
-  
-  
+  colors.white:set(0)
   love.graphics.push()
   
   love.graphics.translate(self.offset.x, self.offset.y)
@@ -111,6 +108,8 @@ function test.draw(self)
   
   love.graphics.pop()
   
+  colors.white:set()
+  love.graphics.print('BSP Gen', 20, 20)
 end
 
 function test.quit(self)

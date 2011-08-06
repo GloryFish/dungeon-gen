@@ -64,13 +64,14 @@ function DungeonGenerator:renderBSP(node)
    end
  end
  
- self:createRoom(node)
+ self:createRooms(node)
+ self:createCorridors(node)
  
  return self.tiles
 end
 
--- Adds a room, to a node. If the nod eis not a leaf node, it tries to add a room to the node's children.
-function DungeonGenerator:createRoom(node)
+-- Adds a room, to a node. If the node is not a leaf node, it tries to add rooms to the node's children.
+function DungeonGenerator:createRooms(node)
   assert(node ~= nil, "node must not be nil")
   assert(node.rect ~= nil, "node must have a rect")
   
@@ -94,10 +95,10 @@ function DungeonGenerator:createRoom(node)
   end
   
   if node.children[1] ~= nil then
-    self:createRoom(node.children[1])
+    self:createRooms(node.children[1])
   end  
   if node.children[2] ~= nil then
-    self:createRoom(node.children[2])
+    self:createRooms(node.children[2])
   end  
 end
 
@@ -112,10 +113,29 @@ function DungeonGenerator:roomForNode(node)
                           math.random(node.rect.position.y + 1, node.rect.position.y + node.rect.size.y - size.y - 1))
 
   return Rectangle(position, size)
-  
-  
 end
 
+-- Adds a corridor connecting two nodes with rooms, attempts to recursivly connect child nodes
+function DungeonGenerator:createCorridors(node)
+  return -- TODO: remove
+  -- assert(node ~= nil, "node must not be nil")
+  -- assert(#node.children == 2, "node must have two children")
+  -- 
+  -- node.corridor = self:corridorForNode(node)
+  -- 
+  -- self:createCorridors(node.children[1])
+  -- self:createCorridors(node.children[2])
+end
+
+function DungeonGenerator:corridorForNode(node)
+  -- local firstRect = node.children[1].rect
+  -- local secondRect = node.children[2].rect
+  -- 
+  -- 
+  -- local highestY
+  -- 
+  
+end
 
 function DungeonGenerator:split(node, currentDepth)
   local depth = currentDepth

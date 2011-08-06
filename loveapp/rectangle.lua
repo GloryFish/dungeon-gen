@@ -29,9 +29,14 @@ end
 function Rectangle:intersects(rect)
   return not (rect.position.x > self.position.x + self.size.x or
               rect.position.x + rect.size.x < self.position.x or
-              rect.position.y > self.position.y + self.size.x or
+              rect.position.y > self.position.y + self.size.y or
               rect.position.y + rect.size.y < self.position.y)
 end
+
+function Rectangle:center()
+  return vector(self.position.x + self.size.x / 2, self.position.y + self.size.y / 2)
+end
+
 
 -- This is mainly for debugging
 function Rectangle:draw(offset)

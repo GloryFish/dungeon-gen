@@ -15,6 +15,7 @@ require 'logger'
 
 scenes = {}
 require 'scenes/test'
+require 'scenes/rect'
 
 function love.load()
   debug = true
@@ -50,7 +51,7 @@ function love.load()
   love.audio.setVolume(1)
 
   Gamestate.registerEvents()
-  Gamestate.switch(scenes.test)
+  Gamestate.switch(scenes.rect)
 end
 
 function love.update(dt)
