@@ -86,12 +86,16 @@ function test.draw(self)
   love.graphics.translate(self.offset.x, self.offset.y)
   love.graphics.scale(self.scale, self.scale)
   
+  love.graphics.setLineWidth(1)
+
   local tileSize = 16
   if self.tiles ~= nil then
-    for x = 1, #self.tiles do
-      for y = 1, #self.tiles[1] do
-        if self.tiles[x][y] == '#' then
+    for x = 0, #self.tiles - 1 do
+      for y = 0, #self.tiles[1] - 1 do
+        if self.tiles[x + 1][y + 1] == '#' then
           colors.green:set()
+        elseif self.tiles[x + 1][y + 1] == '-' then
+          colors.red:set()
         else
           colors.grey:set()
         end
@@ -103,7 +107,6 @@ function test.draw(self)
   love.graphics.push()
   love.graphics.scale(tileSize, tileSize)
   colors.red:set()
-  self.generator:draw()
   love.graphics.pop()
   
   love.graphics.pop()

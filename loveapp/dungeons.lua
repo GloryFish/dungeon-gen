@@ -45,7 +45,7 @@ function DungeonGenerator:generate(seed, size, maxDepth, minRoomSize)
   self.maxDepth = maxDepth
   self.minRoomSize = minRoomSize
   
-  self.rootNode = DungeonNode(nil, Rectangle(vector(1, 1), size))
+  self.rootNode = DungeonNode(nil, Rectangle(vector(0, 0), size))
   
   self:split(self.rootNode)
   return self:renderBSP(self.rootNode)
@@ -55,8 +55,8 @@ end
 function DungeonGenerator:renderBSP(node)
   -- Create a blank array of solid tiles
  self.tiles = {}
- for x = 1, self.size.x do
-   for y = 1, self.size.y do
+ for x = 1, self.size.x + 1 do
+   for y = 1, self.size.y + 1 do
      if self.tiles[x] == nil then
        self.tiles[x] = {}
      end
@@ -75,16 +75,19 @@ function DungeonGenerator:createRoom(node)
   assert(node.rect ~= nil, "node must have a rect")
   
   if #node.children == 0 then
-    local roomRect = self:getSmallerRect(node.rect, self.minRoomSize)
-    assert(roomRect.position.x < roomRect.position.x + roomRect.size.x)
-    assert(roomRect.position.y < roomRect.position.y + roomRect.size.y)
+    local roomRect = self:roomForNode(node)
     
+    -- Draw containing rect
+    for x = node.rect.position.x, node.rect.position.x + node.rect.size.x do
+      for y = node.rect.position.y, node.rect.position.y + node.rect.size.y do
+        self.tiles[x + 1][y + 1] = '-'
+      end
+    end
     
+    -- Draw room
     for x = roomRect.position.x, roomRect.position.x + roomRect.size.x do
       for y = roomRect.position.y, roomRect.position.y + roomRect.size.y do
-        assert(x ~= 0, string.format('x: %i, %s, %s', x, tostring(roomRect.position), tostring(roomRect.size)))
-        assert(y ~= 0, string.format('y: %i, %s, %s', y, tostring(roomRect.position), tostring(roomRect.size)))
-        self.tiles[x][y] = ' '
+        self.tiles[x + 1][y + 1] = ' '
       end
     end
     return
@@ -98,37 +101,20 @@ function DungeonGenerator:createRoom(node)
   end  
 end
 
-function DungeonGenerator:getSmallerRect(rect, minSize)
-  local newSize = vector(0, 0)
-  if minSize.x >= rect.size.x then
-    newSize.x = minSize.x
-  else
-    newSize.x = math.random(minSize.x, rect.size.x)
-  end
-  if minSize.y >= rect.size.y then
-    newSize.y = minSize.y
-  else
-    newSize.y = math.random(minSize.y, rect.size.y)
-  end
+function DungeonGenerator:roomForNode(node)
+  assert(node ~= nil, 'node is nil')
+  assert(node.rect ~= nil, 'node.rect is nil')
 
+  local size = vector(math.random(self.minRoomSize.x, node.rect.size.x - 2), math.random(self.minRoomSize.y, node.rect.size.y - 2))
+  -- local size = vector(math.floor(node.rect.size.x / 2), math.floor(node.rect.size.y / 2))
 
-  local newPosition = vector(0, 0)
+  local position = vector(math.random(node.rect.position.x + 1, node.rect.position.x + node.rect.size.x - size.x - 1),
+                          math.random(node.rect.position.y + 1, node.rect.position.y + node.rect.size.y - size.y - 1))
 
-  if rect.position.x + 1 >= rect.position.x + rect.size.x - newSize.x - 1 then
-    newPosition.x = rect.position.x + 1
-  else
-    newPosition.x = math.random(rect.position.x + 1, rect.position.x + rect.size.x - newSize.x - 1)
-  end
-
-  if rect.position.y + 1 >= rect.position.y + rect.size.y - newSize.y - 1 then
-    newPosition.y = rect.position.y + 1
-  else
-    newPosition.y = math.random(rect.position.y + 1, rect.position.y + rect.size.y - newSize.y - 1)
-  end
+  return Rectangle(position, size)
   
-  return Rectangle(newPosition, newSize)
+  
 end
-
 
 
 function DungeonGenerator:split(node, currentDepth)
@@ -146,6 +132,11 @@ function DungeonGenerator:split(node, currentDepth)
     return
   end
   
+  -- Ensure that the node can fit two minSized rooms
+  if node.rect.size.x < self.minRoomSize.x * 2 or 
+     node.rect.size.y < self.minRoomSize.y then
+     return
+  end
 
   -- Split into two rectangles
   local firstRect = {}
@@ -153,8 +144,8 @@ function DungeonGenerator:split(node, currentDepth)
 
   local direction = math.random()
   if direction < 0.5 then -- Horizontal
-    local splitY = math.random(0.3 * node.rect.size.y, 0.7 * node.rect.size.y)
-    -- local splitY = node.rect.size.y / 2
+    -- local splitY = math.random(0.4 * node.rect.size.y, 0.6 * node.rect.size.y)
+    local splitY = math.floor(node.rect.size.y / 2)
     
     firstRect = Rectangle(vector(node.rect.position.x, 
                                  node.rect.position.y), 
@@ -166,8 +157,8 @@ function DungeonGenerator:split(node, currentDepth)
                            vector(node.rect.size.x , 
                                   node.rect.size.y - splitY))
   else
-    local splitX = math.random(0.3 * node.rect.size.x, 0.7 * node.rect.size.x)
-    -- local splitX = node.rect.size.x / 2
+    -- local splitX = math.random(0.4 * node.rect.size.x, 0.6 * node.rect.size.x)
+    local splitX = math.floor(node.rect.size.x / 2)
     
     firstRect = Rectangle(vector(node.rect.position.x , 
                                  node.rect.position.y), 
@@ -180,16 +171,14 @@ function DungeonGenerator:split(node, currentDepth)
                                   node.rect.size.y))
   end
 
-  -- create nodes for them, add them as children
-  node.children[1] = DungeonNode(node, firstRect)
-  node.children[2] = DungeonNode(node, secondRect)
   
-  -- split the children if they are big enough
-  if firstRect.size.x > self.minRoomSize.x + 2 and firstRect.size.y > self.minRoomSize.y + 2 then
+  if firstRect.size.x > self.minRoomSize.x and firstRect.size.y > self.minRoomSize.y then
+    node.children[1] = DungeonNode(node, firstRect)
     self:split(node.children[1], depth)
   end
   
-  if secondRect.size.x > self.minRoomSize.x + 2 and secondRect.size.y > self.minRoomSize.y + 2 then
+  if secondRect.size.x > self.minRoomSize.x and secondRect.size.y > self.minRoomSize.y then
+    node.children[2] = DungeonNode(node, secondRect)
     self:split(node.children[2], depth)
   end
 end
