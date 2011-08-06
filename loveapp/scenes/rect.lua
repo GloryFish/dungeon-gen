@@ -45,61 +45,64 @@ function rect:generateCorridor(firstRect, secondRect, minWidth, maxWidth)
   end
 
   local normal = secondRect:center() - firstRect:center()
+
+
+  local left = math.max(firstRect.position.x, secondRect.position.x)
+  local right = math.min(firstRect.position.x + firstRect.size.x, secondRect.position.x + secondRect.size.x)
   
-  if normal.y < 0 then -- Up
+  if left < right then
+    local maxPossibleCorridorWidth = math.abs(left - right)
     
-  else  -- Down
-    
+    if maxPossibleCorridorWidth >= minWidth then
+      -- Choose a random corridor size between min and max
+      local corridorWidth = minWidth
+      if maxPossibleCorridorWidth > minWidth then
+        corridorWidth = math.random(minWidth, maxPossibleCorridorWidth)
+      end
+      
+      -- Select a random horizontal position on the first rects wall between the rightmost possible and leftmost possible positions
+      local posX = math.random(left, right - corridorWidth)
+      
+      if normal.y < 0 then -- Up
+        return Rectangle(vector(posX, secondRect.position.y + secondRect.size.y), 
+                         vector(corridorWidth, firstRect.position.y - (secondRect.position.y + secondRect.size.y)))
+      else -- Down
+        return Rectangle(vector(posX, firstRect.position.y + firstRect.size.y), 
+                         vector(corridorWidth, secondRect.position.y - (firstRect.position.y + firstRect.size.y)))
+      end
+      
+    end
   end
 
-  if normal.x < 0 then -- Left
-    local top = math.max(firstRect.position.y, secondRect.position.y)
-    local bottom = math.min(firstRect.position.y + firstRect.size.y, secondRect.position.y + secondRect.size.y)
-    
-    if top < bottom then
-      local maxPossibleCorridorWidth = math.abs(top - bottom)
 
-      if maxPossibleCorridorWidth >= minWidth then
-        -- Choose a random corridor size between min and max
-        local corridorWidth = minWidth
-        if maxPossibleCorridorWidth > minWidth then
-          corridorWidth = math.random(minWidth, maxPossibleCorridorWidth)
-        end
+  local top = math.max(firstRect.position.y, secondRect.position.y)
+  local bottom = math.min(firstRect.position.y + firstRect.size.y, secondRect.position.y + secondRect.size.y)
 
-        -- Select a random vertical position on the first rects wall between the highest possible and lowest possible positions
-        local posY = math.random(top, bottom - corridorWidth)
+  if top < bottom then
+    local maxPossibleCorridorWidth = math.abs(top - bottom)
 
+    if maxPossibleCorridorWidth >= minWidth then
+      -- Choose a random corridor size between min and max
+      local corridorWidth = minWidth
+      if maxPossibleCorridorWidth > minWidth then
+        corridorWidth = math.random(minWidth, maxPossibleCorridorWidth)
+      end
+
+      -- Select a random vertical position on the first rects wall between the highest possible and lowest possible positions
+      local posY = math.random(top, bottom - corridorWidth)
+      
+      if normal.x < 0 then -- Left
         return Rectangle(vector(secondRect.position.x + secondRect.size.x, posY), 
                          vector(firstRect.position.x - (secondRect.position.x + secondRect.size.x), corridorWidth))
-      end
-    end -- top < bottom
-    
-  else -- Right
-    local top = math.max(firstRect.position.y, secondRect.position.y)
-    local bottom = math.min(firstRect.position.y + firstRect.size.y, secondRect.position.y + secondRect.size.y)
-    
-    if top < bottom then
-      local maxPossibleCorridorWidth = math.abs(top - bottom)
-
-      if maxPossibleCorridorWidth >= minWidth then
-        -- Choose a random corridor size between min and max
-        local corridorWidth = minWidth
-        if maxPossibleCorridorWidth > minWidth then
-          corridorWidth = math.random(minWidth, maxPossibleCorridorWidth)
-        end
-
-        -- Select a random vertical position on the first rects wall between the highest possible and lowest possible positions
-        local posY = math.random(top, bottom - corridorWidth)
-
+      else -- Right
         return Rectangle(vector(firstRect.position.x + firstRect.size.x, posY), 
                          vector(secondRect.position.x - (firstRect.position.x + firstRect.size.x), corridorWidth))
       end
-    end -- top < bottom
-  end
+    end
+  end -- top < bottom
 
 
   -- At this point we can try more creative ways of making a corridor...
-
   
   return nil
 end

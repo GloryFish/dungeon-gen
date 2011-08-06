@@ -50,7 +50,7 @@ function test.keypressed(self, key, unicode)
 end
 
 function test:generate()
-  self.tiles = self.generator:generate(os.time() + math.random(), vector(100, 100), 3, vector(10, 10))
+  self.tiles = self.generator:generate(os.time() + math.random(), vector(200, 200), 7, vector(10, 10), 1, 5)
 end
 
 function test.mousepressed(self, x, y, button)
@@ -85,7 +85,7 @@ function test.draw(self)
   
   love.graphics.setLineWidth(1)
 
-  local tileSize = 16
+  local tileSize = 8
   if self.tiles ~= nil then
     for x = 0, #self.tiles - 1 do
       for y = 0, #self.tiles[1] - 1 do

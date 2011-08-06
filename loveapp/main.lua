@@ -51,7 +51,7 @@ function love.load()
   love.audio.setVolume(1)
 
   Gamestate.registerEvents()
-  Gamestate.switch(scenes.rect)
+  Gamestate.switch(scenes.test)
 end
 
 function love.update(dt)
